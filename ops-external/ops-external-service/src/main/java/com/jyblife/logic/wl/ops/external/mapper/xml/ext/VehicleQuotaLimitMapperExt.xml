@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.external.mapper.VehicleQuotaLimitMapper" >
+  
+  <select id="selectCurrentDate" resultMap="BaseResultMap">
+      select 
+      <include refid="Base_Column_List" />
+      from t_vehicle_quota_limit
+      where `status` = 1 and DATE_FORMAT(effect_time, '%Y-%m-%d') = DATE_FORMAT(CURDATE(), '%Y-%m-%d')
+      order by effect_time DESC limit 1
+  </select>
+  
+  <select id="selectCurrent" resultMap="BaseResultMap">
+      select 
+      <include refid="Base_Column_List" />
+      from t_vehicle_quota_limit
+      where `status` = 1 order by effect_time DESC limit 1
+  </select>
+  
+</mapper>

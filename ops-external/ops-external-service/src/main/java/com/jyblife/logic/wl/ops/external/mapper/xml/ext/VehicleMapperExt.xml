@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.external.mapper.VehicleMapper" >
+  
+  <sql id="Column_List" >
+    vehicle_id AS vehicleId, logistics_id AS logisticsId, number, model, optor, capacity, start_date AS startDate, end_date AS endDate, remark, 
+    status, `state`, status_time AS statusTime, effect_time AS effectTime, create_user_id AS createUserId, create_time AS createTime, update_user_id AS updateUserId, update_time AS updateTime 
+  </sql>
+  
+  <select id="selectByNumber" parameterType="java.lang.String" resultType="com.jyblife.logic.wl.ops.entity.Vehicle">
+  	select <include refid="Column_List" /> from t_vehicle where number = #{number}
+  </select>
+  
+  <select id="selectByIds" parameterType="java.util.List" resultType="com.jyblife.logic.wl.ops.entity.Vehicle">
+  	select <include refid="Column_List" /> from t_vehicle where `vehicle_id` in 
+  	<foreach collection="vehicleIds" item="vehicleId" open="(" close=")" separator=",">
+  		#{vehicleId}
+  	</foreach>
+  </select>
+  
+  <select id="selectByDriverId" parameterType="java.lang.Integer" resultType="com.jyblife.logic.wl.ops.external.dto.resp.RespDriverVehicleInfoDto$Vehicle">
+  	SELECT
+		a.vehicle_id AS vehicleId,
+		a.model,
+		a.number,
+		a.capacity,
+		a.logistics_id AS logisticsId,
+		c.`name` AS logisticsName,
+		a.remark,
+		a.`status`,
+		a.optor AS operator,
+		a.state,
+		DATE_FORMAT(a.create_time,'%Y-%m-%d %H:%i:%S') AS addTime,
+		DATE_FORMAT(a.start_date, '%Y-%m-%d') AS startDate,
+		DATE_FORMAT(a.end_date, '%Y-%m-%d') AS endDate
+	FROM
+		t_vehicle a
+	JOIN t_driver_vehicle_relation b ON a.vehicle_id = b.vehicle_id
+	LEFT JOIN t_logistics_company c ON a.logistics_id = c.logistics_id
+	WHERE
+		b.driver_id = #{driverId}
+  </select>
+
+
+  <select id="selectByDriverIdAndState" resultType="com.jyblife.logic.wl.ops.external.dto.resp.RespDriverVehicleInfoDto$Vehicle">
+    SELECT
+    a.vehicle_id AS vehicleId,
+    a.model,
+    a.number,
+    a.capacity,
+    a.logistics_id AS logisticsId,
+    c.`name` AS logisticsName,
+    a.remark,
+    a.`status`,
+    a.optor AS operator,
+    a.state,
+    DATE_FORMAT(a.create_time,'%Y-%m-%d %H:%i:%S') AS addTime,
+    DATE_FORMAT(a.start_date, '%Y-%m-%d') AS startDate,
+    DATE_FORMAT(a.end_date, '%Y-%m-%d') AS endDate
+    FROM
+    t_vehicle a
+    JOIN t_driver_vehicle_relation b ON a.vehicle_id = b.vehicle_id
+    LEFT JOIN t_logistics_company c ON a.logistics_id = c.logistics_id
+    WHERE
+    b.driver_id = #{driverId} and a.state=#{state}
+  </select>
+  
+  <insert id="insertVehicle" parameterType="com.jyblife.logic.wl.ops.entity.Vehicle" >
+  	<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="vehicleId">
+	  SELECT LAST_INSERT_ID()
+	</selectKey>
+    insert into t_vehicle
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="vehicleId != null" >
+        vehicle_id,
+      </if>
+      <if test="logisticsId != null" >
+        logistics_id,
+      </if>
+      <if test="number != null" >
+        number,
+      </if>
+      <if test="model != null" >
+        model,
+      </if>
+      <if test="optor != null" >
+        optor,
+      </if>
+      <if test="capacity != null" >
+        capacity,
+      </if>
+      <if test="startDate != null" >
+        start_date,
+      </if>
+      <if test="endDate != null" >
+        end_date,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="statusTime != null" >
+        status_time,
+      </if>
+      <if test="effectTime != null" >
+        effect_time,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateUserId != null" >
+        update_user_id,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="vehicleId != null" >
+        #{vehicleId,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsId != null" >
+        #{logisticsId,jdbcType=INTEGER},
+      </if>
+      <if test="number != null" >
+        #{number,jdbcType=VARCHAR},
+      </if>
+      <if test="model != null" >
+        #{model,jdbcType=VARCHAR},
+      </if>
+      <if test="optor != null" >
+        #{optor,jdbcType=VARCHAR},
+      </if>
+      <if test="capacity != null" >
+        #{capacity,jdbcType=DECIMAL},
+      </if>
+      <if test="startDate != null" >
+        #{startDate,jdbcType=DATE},
+      </if>
+      <if test="endDate != null" >
+        #{endDate,jdbcType=DATE},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusTime != null" >
+        #{statusTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="effectTime != null" >
+        #{effectTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null" >
+        #{updateUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+</mapper>

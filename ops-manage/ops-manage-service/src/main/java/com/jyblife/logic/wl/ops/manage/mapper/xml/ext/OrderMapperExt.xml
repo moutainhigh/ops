@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.OrderMapper" >
+
+  <select id="selectPageList" resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespOrderListDto$OrderItem"
+          parameterType="com.jyblife.logic.wl.ops.manage.dto.OrderListDto$Search" >
+    select
+      o.order_id as orderId,o.code,o.order_type as orderType,o.customer_id as customerId,o.vehicle_id as vehicleId,o.station_id as stationId,
+      o.goods_id as goodsId,o.quantity,o.price_buy as priceBuy,o.price_sell as priceSell,o.price_retail as priceRetail,
+      o.oil_company_id as oilCompanyId,o.logistics_id as logisticsId,o.failed_reason as failedReason,o.effect_time as effectTime,
+      o.status,o.status_time as statusTime,o.remark,o.create_user_id as createUserId,o.create_time as createTime,
+      o.update_user_id as updateUserId,o.update_time as updateTime,round(o.price_sell*o.quantity) as sellAmount,round(o.price_buy*o.quantity) as buyAmount,
+      d.name as customerName,d.phone as customerPhone,
+      c.name as logisticsName,
+      v.number as vehicleNumber,v.model as vehicleModel,
+      g.name as goodsName,
+      s.name as oilStationName,s.address as oilStationAddress
+    from t_order o
+    left join t_driver d on o.customer_id = d.customer_id
+    left join t_logistics_company c on o.logistics_id = c.logistics_id
+    left join t_vehicle v on o.vehicle_id = v.vehicle_id
+    left join t_oil_goods g on g.goods_id = o.goods_id
+    left join t_oil_station s on s.station_id = o.station_id
+    <where >
+      <if test="code != null and code !=''" >
+        and o.code LIKE concat('%',#{code,jdbcType=VARCHAR},'%') 
+      </if>
+      <if test="customerName != null and customerName !=''" >
+        and d.name LIKE concat('%',#{customerName,jdbcType=VARCHAR},'%') 
+      </if>
+      <if test="customerPhone != null and customerPhone !=''" >
+        and d.phone LIKE concat('%',#{customerPhone,jdbcType=VARCHAR},'%') 
+      </if>
+      <if test="logisticsName != null and logisticsName !=''" >
+        and c.name LIKE concat('%',#{logisticsName,jdbcType=VARCHAR},'%') 
+      </if>
+      <if test="status != null and status!=''" >
+        and o.status = #{status}
+      </if>
+      <if test="vehicleNumber != null and vehicleNumber !=''" >
+        and v.number LIKE concat('%',#{vehicleNumber,jdbcType=VARCHAR},'%') 
+      </if>
+      <if test="createStartTime!=null and createStartTime !=''">
+        and o.create_time &gt;= #{createStartTime}
+      </if>
+      <if test="createEndTime!=null and createEndTime !=''">
+        and o.create_time &lt;= #{createEndTime}
+      </if>
+    </where>
+    ORDER BY o.order_id DESC
+  </select>
+
+  <resultMap id="OrderDetailMap" type="com.jyblife.logic.wl.ops.manage.dto.resp.RespOrderDetailDto">
+    <id property="orderId" column="order_id"></id>
+    <result property="code" column="code"></result>
+    <result property="status" column="status"></result>
+    <result property="quantity" column="quantity"></result>
+    <result property="retailPrice" column="price_retail"></result>
+    <result property="agreedPrice" column="price_buy"></result>
+    <result property="discountPrice" column="price_sell"></result>
+    <result property="createTime" column="create_time"></result>
+    <result property="effectTime" column="effect_time"></result>
+    <result property="failedReason" column="failed_reason"></result>
+    <result property="sellAmount" column="sell_amount"></result>
+    <result property="buyAmount" column="buy_amount"></result>
+    <result property="orderType" column="order_type"></result>
+    <result property="remark" column="remark"></result>
+    <association property="goods" javaType="com.jyblife.logic.wl.ops.manage.dto.resp.RespOrderDetailDto$GoodsItem">
+      <id property="id" column="g_id"></id>
+      <result property="name" column="g_name"></result>
+    </association>
+    <association property="customer" javaType="com.jyblife.logic.wl.ops.manage.dto.resp.RespOrderDetailDto$CustomerItem">
+      <id property="id" column="c_id"></id>
+      <result property="name" column="c_name"></result>
+      <result property="phone" column="c_phone"></result>
+      <result property="password" column="c_password"></result>
+    </association>
+    <association property="logistics" javaType="com.jyblife.logic.wl.ops.manage.dto.resp.RespOrderDetailDto$LogisticsItem">
+      <id property="id" column="l_id"></id>
+      <result property="name" column="l_name"></result>
+    </association>
+    <association property="vehicle" javaType="com.jyblife.logic.wl.ops.manage.dto.resp.RespOrderDetailDto$VehicleItem">
+      <id property="id" column="v_id"></id>
+      <result property="number" column="v_number"></result>
+      <result property="model" column="v_model"></result>
+    </association>
+    <association property="oilStation" javaType="com.jyblife.logic.wl.ops.manage.dto.resp.RespOrderDetailDto$OilStationItem">
+      <id property="id" column="s_id"></id>
+      <result property="name" column="s_name"></result>
+      <result property="address" column="s_address"></result>
+    </association>
+  </resultMap>
+
+
+  <select id="selectOrderDetail" resultMap="OrderDetailMap" parameterType="java.lang.Long">
+    select o.order_id,o.code,o.status,o.quantity,o.price_retail,o.price_buy,o.price_sell,o.create_time,o.effect_time,o.failed_reason,
+           round(o.quantity*o.price_sell) as sell_amount,round(o.price_buy*o.quantity) as buy_amount,o.order_type,o.remark,
+           g.goods_id as g_id,g.name as g_name,
+           c.customer_id as c_id,c.name as c_name,c.phone as c_phone,c.password as c_password,
+           l.logistics_id as l_id,l.name as l_name,
+           v.vehicle_id as v_id,v.number as v_number,v.model as v_model,
+           s.station_id as s_id,s.name as s_name,s.address as s_address
+    from t_order o
+    left join t_driver c on o.customer_id = c.customer_id
+    left join t_logistics_company l on o.logistics_id = l.logistics_id
+    left join t_vehicle v on o.vehicle_id = v.vehicle_id
+    left join t_oil_goods g on g.goods_id = o.goods_id
+    left join t_oil_station s on s.station_id = o.station_id
+    where o.order_id =#{orderId}
+  </select>
+
+	<insert id="insertOrder" parameterType="com.jyblife.logic.wl.ops.entity.Order" >
+    <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="orderId">
+        SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="code != null" >
+        code,
+      </if>
+      <if test="orderType != null" >
+        order_type, 
+      </if>
+      <if test="customerId != null" >
+        customer_id,
+      </if>
+      <if test="vehicleId != null" >
+        vehicle_id,
+      </if>
+      <if test="stationId != null" >
+        station_id,
+      </if>
+      <if test="goodsId != null" >
+        goods_id,
+      </if>
+      <if test="quantity != null" >
+        quantity,
+      </if>
+      <if test="priceBuy != null" >
+        price_buy,
+      </if>
+      <if test="priceSell != null" >
+        price_sell,
+      </if>
+      <if test="priceRetail != null" >
+        price_retail,
+      </if>
+      <if test="oilCompanyId != null" >
+        oil_company_id,
+      </if>
+      <if test="logisticsId != null" >
+        logistics_id,
+      </if>
+      <if test="failedReason != null" >
+        failed_reason,
+      </if>
+      <if test="effectTime != null" >
+        effect_time,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="statusTime != null" >
+        status_time,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateUserId != null" >
+        update_user_id,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="orderId != null" >
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="code != null" >
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="orderType != null" >
+        #{orderType,jdbcType=INTEGER},
+      </if>
+      <if test="customerId != null" >
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="vehicleId != null" >
+        #{vehicleId,jdbcType=INTEGER},
+      </if>
+      <if test="stationId != null" >
+        #{stationId,jdbcType=INTEGER},
+      </if>
+      <if test="goodsId != null" >
+        #{goodsId,jdbcType=INTEGER},
+      </if>
+      <if test="quantity != null" >
+        #{quantity,jdbcType=DECIMAL},
+      </if>
+      <if test="priceBuy != null" >
+        #{priceBuy,jdbcType=INTEGER},
+      </if>
+      <if test="priceSell != null" >
+        #{priceSell,jdbcType=INTEGER},
+      </if>
+      <if test="priceRetail != null" >
+        #{priceRetail,jdbcType=INTEGER},
+      </if>
+      <if test="oilCompanyId != null" >
+        #{oilCompanyId,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsId != null" >
+        #{logisticsId,jdbcType=INTEGER},
+      </if>
+      <if test="failedReason != null" >
+        #{failedReason,jdbcType=VARCHAR},
+      </if>
+      <if test="effectTime != null" >
+        #{effectTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusTime != null" >
+        #{statusTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null" >
+        #{updateUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+</mapper>

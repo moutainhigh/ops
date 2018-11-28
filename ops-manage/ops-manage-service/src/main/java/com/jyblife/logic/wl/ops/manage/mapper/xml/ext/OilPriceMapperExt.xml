@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.OilPriceMapper" >
+
+  <select id="selectByGoodsId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_oil_price
+    where goods_id = #{goodsId,jdbcType=INTEGER}
+    order by price_id desc
+    limit 1
+  </select>
+  
+  <update id="updateEndTimeByStationIdGoodsId" parameterType="com.jyblife.logic.wl.ops.entity.OilPrice">
+  	update t_oil_price set 
+  	end_time = #{endTime,jdbcType=TIMESTAMP},
+  	update_time = #{updateTime,jdbcType=TIMESTAMP} 
+  	where 
+  	station_id = #{stationId,jdbcType=INTEGER} 
+  	and goods_id = #{goodsId,jdbcType=INTEGER} 
+  	and `status` = 1 
+  	and effect_time <![CDATA[<=]]> now() 
+  	and end_time <![CDATA[>=]]> now() 
+  </update>
+  
+  <update id="updateUneffectByStationIdGoodsId" parameterType="com.jyblife.logic.wl.ops.entity.OilPrice">
+  	update t_oil_price set 
+  	end_time = #{updateTime,jdbcType=TIMESTAMP},
+  	update_time = #{updateTime,jdbcType=TIMESTAMP} 
+  	where 
+  	station_id = #{stationId,jdbcType=INTEGER} 
+  	and goods_id = #{goodsId,jdbcType=INTEGER} 
+  	and `status` = 1 
+  	and effect_time <![CDATA[>]]> now() 
+  </update>
+  
+  <select id="getEffectByStationIdAndGoodsId" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from t_oil_price
+		where goods_id = #{goodsId,jdbcType=INTEGER} and station_id = #{stationId,jdbcType=INTEGER} 
+		and `status` = 1 and effect_time <![CDATA[<=]]> now() and end_time <![CDATA[>=]]> now() 
+		order by effect_time DESC, price_id DESC limit 1
+	</select>
+  
+  <select id="selectPageList" parameterType="com.jyblife.logic.wl.ops.manage.dto.req.ReqOilPriceListDto$Search" 
+  							  resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespOilPriceListDto$OilPriceItem">
+  
+  		SELECT
+  			A.`status`,
+			A.price_id AS priceId,
+			A.apply_id AS applyId,
+			A.retail_price AS retailPrice,
+			A.agreed_price AS agreedPrice,
+			A.discount_price AS discountPrice,
+			A.effect_time AS effectTime,
+			A.end_time AS endTime,
+			B.`code` AS `code`,
+			C.`name` AS stationName,
+			D.`name` AS companyName,
+			E.`name` AS goodsName,
+			F.`name` AS createUserName
+		FROM
+			t_oil_price A
+		LEFT JOIN t_oil_price_apply B ON A.apply_id = B.apply_id
+		LEFT JOIN t_oil_station C ON A.station_id = C.station_id
+		LEFT JOIN t_oil_company D ON A.company_id = D.company_id
+		LEFT JOIN t_oil_goods E ON A.goods_id = E.goods_id
+		LEFT JOIN t_system_user F ON A.create_user_id = F.user_id
+		<where>
+	     <if test="status != null and status == '1'.toString()">
+	       and A.effect_time &gt; NOW() and A.effect_time &lt; A.end_time and A.`status` = 1 
+	     </if>
+	     <if test="status != null and status == '2'.toString()">
+	       and A.effect_time &lt;= NOW() and A.end_time &gt;= NOW() and A.`status` = 1 
+	     </if>
+	     <if test="status != null and status == '3'.toString()">
+	       and (A.end_time &lt; NOW() OR A.`status` = 0)  
+	     </if>
+	     <if test="effectStartTime != null and effectStartTime != ''">
+	       and A.effect_time &gt;= #{effectStartTime}
+	     </if>
+	     <if test="effectEndTime !=null and effectEndTime !=''">
+	       and A.effect_time &lt;= #{effectEndTime}
+	     </if>
+	     <if test="unEffectStartTime != null and unEffectStartTime != ''">
+	       and A.end_time &gt;= #{unEffectStartTime}
+	     </if>
+	     <if test="unEffectEndTime !=null and unEffectEndTime !=''">
+	       and A.end_time &lt;= #{unEffectEndTime}
+	     </if>
+	     <if test="createUserName != null and createUserName != ''">
+	       and F.`name` like concat('%',#{createUserName},'%')
+	     </if>
+	     <if test="companyName != null and companyName != ''">
+	       and D.`name` like concat('%',#{companyName},'%')
+	     </if>
+	     <if test="stationName != null and stationName != ''">
+	       and C.`name` like concat('%',#{stationName},'%')
+	     </if>
+	   </where>
+		ORDER BY B.`code` DESC
+  
+  </select>
+  
+  <insert id="insertOilPriceBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="priceId">
+	INSERT INTO `t_oil_price` 
+	(`apply_id`, `item_id`, `company_id`, `station_id`, `goods_id`, `retail_price`, `agreed_price`, `discount_price`, `effect_time`, `end_time`, `remark`, `status`, `status_time`, `create_time`, `update_user_id`, `update_time`, `create_user_id`) 
+	VALUES 
+    <foreach collection="list" item="item" index="index" separator=","> 
+    (
+      #{item.applyId,jdbcType=INTEGER}, #{item.itemId,jdbcType=INTEGER}, 
+      #{item.companyId,jdbcType=INTEGER}, #{item.stationId,jdbcType=INTEGER}, #{item.goodsId,jdbcType=INTEGER}, 
+      #{item.retailPrice,jdbcType=DECIMAL}, #{item.agreedPrice,jdbcType=DECIMAL}, #{item.discountPrice,jdbcType=DECIMAL}, 
+      #{item.effectTime,jdbcType=TIMESTAMP}, #{item.endTime,jdbcType=TIMESTAMP}, #{item.remark,jdbcType=VARCHAR}, 
+      #{item.status,jdbcType=INTEGER}, #{item.statusTime,jdbcType=TIMESTAMP}, #{item.createTime,jdbcType=TIMESTAMP}, 
+      #{item.updateUserId,jdbcType=INTEGER}, #{item.updateTime,jdbcType=TIMESTAMP}, #{item.createUserId,jdbcType=INTEGER}
+    )
+    </foreach> 
+  </insert>
+  
+  <select id="getCurStationGoodsPriceInfo" parameterType="com.jyblife.logic.wl.ops.entity.OilPrice" resultType="java.util.Map">
+  	SELECT
+		A.retail_price AS retailPrice,
+		A.discount_price AS discountPrice,
+		B.`name` AS goodsName,
+		C.`name` AS stationName
+	FROM
+		t_oil_price A
+	LEFT JOIN t_oil_goods B ON A.goods_id = B.goods_id
+	LEFT JOIN t_oil_station C ON A.station_id = C.station_id
+	WHERE
+		A.`status` = 1
+		AND A.effect_time &lt;= NOW()
+		AND A.end_time &gt;= NOW()
+		AND A.company_id = #{companyId}
+		AND A.station_id = #{stationId}
+		AND A.goods_id = #{goodsId}
+	ORDER BY
+		A.effect_time DESC
+	LIMIT 1
+  </select>
+  
+</mapper>

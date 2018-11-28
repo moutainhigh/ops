@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.LogisticsCompanyMapper" >
+
+  <select id="listPage" parameterType="com.jyblife.logic.wl.ops.manage.dto.LogisticsCompanyListDto$Search"
+          resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from t_logistics_company
+    <where>
+      <if test="name!=null and name!=''">
+        and `name`like concat('%',#{name,jdbcType=VARCHAR},'%') 
+      </if>
+      <if test="status!=null">
+        and `status` = #{status}
+      </if>
+      <if test="outStatus!=null">
+        and `out_status` = #{outStatus}
+      </if>
+    </where>
+    order by logistics_id desc
+  </select>
+
+</mapper>

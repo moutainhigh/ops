@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.DriverMapper" >
+  
+  <select id="selectDetailByCustomerId" resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespDriverDetailDto" parameterType="java.lang.Integer" >
+    select
+          d.driver_id as id,d.customer_id as customerId,d.name as name,d.logistics_id as logisticsId,
+          d.phone,d.password,d.status,d.open_location as openLocation,
+          c.name as logisticsName
+    from t_driver d
+    left JOIN t_logistics_company c on d.logistics_id = c.logistics_Id
+    where d.customer_id = #{customerId,jdbcType=INTEGER}
+  </select>
+
+
+    <select id="selectPageList" resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespDriverListDto$DriverItem"
+        						parameterType="com.jyblife.logic.wl.ops.manage.dto.DriverListDto$Search">
+        SELECT * FROM (
+		SELECT
+			d.driver_id AS driverId,
+			d.customer_id AS customerId,
+			d.name AS `name`,
+			d.logistics_id AS logisticsId,
+			d.phone,
+			d.status,
+            d.open_location AS openLocation,
+			c.NAME AS logisticsName,
+			(SELECT GROUP_CONCAT(v.number) FROM t_vehicle v JOIN t_driver_vehicle_relation dv ON v.vehicle_id =dv.vehicle_id WHERE dv.driver_id = d.driver_id) AS number
+		FROM
+			t_driver d
+		LEFT JOIN t_logistics_company c ON d.logistics_id = c.logistics_id
+        <where>
+        	<if test="logisticsId != null">
+                and d.logistics_id = #{logisticsId}
+            </if>
+            <if test="driverName!=null and driverName!=''">
+                and d.name LIKE concat('%',#{driverName},'%') 
+            </if>
+            <if test="status!=null">
+                and d.status = #{status}
+            </if>
+            <if test="logisticsName!=null and logisticsName!=''">
+                and c.name LIKE concat('%',#{logisticsName},'%') 
+            </if>
+        </where>
+        ORDER BY d.driver_id DESC
+        ) A
+        <if test="number!=null and number!=''">
+        WHERE number LIKE concat('%',#{number},'%') 
+        </if>
+    </select>
+    
+    <sql id="Column_List" >
+	  driver_id AS driverId, customer_id AS customerid, name, password, logistics_id AS logisticsId, phone, remark, status, status_time AS statusTime, open_location AS openLocation,
+	  effect_time AS effectTime, create_user_id AS createUserId, create_time AS createTime, update_user_id AS updateUserId, update_time AS updateTime
+	</sql>
+    
+    <select id="selectByCustomerId" parameterType="java.lang.Integer" resultType="com.jyblife.logic.wl.ops.entity.Driver">
+		select <include refid="Column_List" /> from t_driver where customer_id = #{customerId} limit 1
+	</select>
+
+
+    <update id="updateOpenLocationById">
+        update t_driver set open_location = #{openLocation},update_time=now() where driver_id = #{driverId}
+    </update>
+
+</mapper>

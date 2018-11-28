@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.OilPrintMapper">
+  <resultMap id="BaseResultMap" type="com.jyblife.logic.wl.ops.entity.OilPrint">
+    <id column="print_id" jdbcType="INTEGER" property="printId" />
+    <result column="station_id" jdbcType="INTEGER" property="stationId" />
+    <result column="station_name" jdbcType="VARCHAR" property="stationName" />
+    <result column="print_sn" jdbcType="VARCHAR" property="printSn" />
+    <result column="print_name" jdbcType="VARCHAR" property="printName" />
+    <result column="sim_card" jdbcType="VARCHAR" property="simCard" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="create_user_id" jdbcType="INTEGER" property="createUserId" />
+    <result column="update_user_id" jdbcType="INTEGER" property="updateUserId" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    print_id, station_id, station_name, print_sn, print_name, sim_card, create_time, 
+    create_user_id, update_user_id, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_oil_print
+    where print_id = #{printId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_oil_print
+    where print_id = #{printId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.jyblife.logic.wl.ops.entity.OilPrint">
+    insert into t_oil_print (print_id, station_id, station_name, 
+      print_sn, print_name, sim_card, 
+      create_time, create_user_id, update_user_id, 
+      update_time)
+    values (#{printId,jdbcType=INTEGER}, #{stationId,jdbcType=INTEGER}, #{stationName,jdbcType=VARCHAR}, 
+      #{printSn,jdbcType=VARCHAR}, #{printName,jdbcType=VARCHAR}, #{simCard,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=INTEGER}, #{updateUserId,jdbcType=INTEGER}, 
+      #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jyblife.logic.wl.ops.entity.OilPrint">
+    insert into t_oil_print
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="printId != null">
+        print_id,
+      </if>
+      <if test="stationId != null">
+        station_id,
+      </if>
+      <if test="stationName != null">
+        station_name,
+      </if>
+      <if test="printSn != null">
+        print_sn,
+      </if>
+      <if test="printName != null">
+        print_name,
+      </if>
+      <if test="simCard != null">
+        sim_card,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="printId != null">
+        #{printId,jdbcType=INTEGER},
+      </if>
+      <if test="stationId != null">
+        #{stationId,jdbcType=INTEGER},
+      </if>
+      <if test="stationName != null">
+        #{stationName,jdbcType=VARCHAR},
+      </if>
+      <if test="printSn != null">
+        #{printSn,jdbcType=VARCHAR},
+      </if>
+      <if test="printName != null">
+        #{printName,jdbcType=VARCHAR},
+      </if>
+      <if test="simCard != null">
+        #{simCard,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jyblife.logic.wl.ops.entity.OilPrint">
+    update t_oil_print
+    <set>
+      <if test="stationId != null">
+        station_id = #{stationId,jdbcType=INTEGER},
+      </if>
+      <if test="stationName != null">
+        station_name = #{stationName,jdbcType=VARCHAR},
+      </if>
+      <if test="printSn != null">
+        print_sn = #{printSn,jdbcType=VARCHAR},
+      </if>
+      <if test="printName != null">
+        print_name = #{printName,jdbcType=VARCHAR},
+      </if>
+      <if test="simCard != null">
+        sim_card = #{simCard,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where print_id = #{printId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jyblife.logic.wl.ops.entity.OilPrint">
+    update t_oil_print
+    set station_id = #{stationId,jdbcType=INTEGER},
+      station_name = #{stationName,jdbcType=VARCHAR},
+      print_sn = #{printSn,jdbcType=VARCHAR},
+      print_name = #{printName,jdbcType=VARCHAR},
+      sim_card = #{simCard,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      update_user_id = #{updateUserId,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where print_id = #{printId,jdbcType=INTEGER}
+  </update>
+ 
+  
+</mapper>

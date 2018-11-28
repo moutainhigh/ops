@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.VehicleDailyQuotaMapper">
+	
+	<select id="selectPageList"
+		resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespVehicleQuotaListDto$VehicleQuotaItem"
+		parameterType="com.jyblife.logic.wl.ops.manage.dto.VehicleQuotaListDto$Search">
+		select v.vehicle_id as vehicleId , v.number,v.logistics_id as
+		logisticsId,v.capacity,v.state,
+		IFNULL(q.used_quota, 0) as usedQuota,
+		IFNULL(q.frozen_quota, 0) as frozenQuota,
+		c.`name` as logisticsName
+		from t_vehicle v
+		left join t_vehicle_daily_quota q on v.vehicle_id = q.vehicle_id AND q.`current_date` = CURDATE()
+		left join t_logistics_company c on v.logistics_id = c.logistics_id
+		<where>
+			<if test="logisticsName != null and logisticsName!=''">
+				and c.name like concat('%',#{logisticsName,jdbcType=VARCHAR},'%') 
+			</if>
+			<if test="number != null and number!=''">
+				and v.number like concat('%',#{number,jdbcType=VARCHAR},'%') 
+			</if>
+		</where>
+		order by v.vehicle_id desc
+	</select>
+	
+	<select id="selectCurDateByVehicleId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+	 	SELECT * FROM t_vehicle_daily_quota WHERE `current_date` = CURDATE() AND vehicle_id = #{vehicleId}
+	 </select>
+  
+  <insert id="insertVehicleDailyQuota" parameterType="com.jyblife.logic.wl.ops.entity.VehicleDailyQuota" >
+  	<selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+	  SELECT LAST_INSERT_ID()
+	</selectKey>
+    insert into t_vehicle_daily_quota
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="vehicleId != null" >
+        vehicle_id,
+      </if>
+      <if test="currentDate != null" >
+        `current_date`,
+      </if>
+      <if test="frozenQuota != null" >
+        frozen_quota,
+      </if>
+      <if test="usedQuota != null" >
+        used_quota,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="statusTime != null" >
+        status_time,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="effectTime != null" >
+        effect_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateUserId != null" >
+        update_user_id,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="vehicleId != null" >
+        #{vehicleId,jdbcType=INTEGER},
+      </if>
+      <if test="currentDate != null" >
+        #{currentDate,jdbcType=DATE},
+      </if>
+      <if test="frozenQuota != null" >
+        #{frozenQuota,jdbcType=DECIMAL},
+      </if>
+      <if test="usedQuota != null" >
+        #{usedQuota,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusTime != null" >
+        #{statusTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="effectTime != null" >
+        #{effectTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null" >
+        #{updateUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+</mapper>

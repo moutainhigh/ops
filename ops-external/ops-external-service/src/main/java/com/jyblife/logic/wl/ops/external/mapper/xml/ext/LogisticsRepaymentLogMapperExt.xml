@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.external.mapper.LogisticsRepaymentLogMapper" >
+  
+  <select id="selectByTxno" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_logistics_repayment_log
+    where tx_no = #{txNo,jdbcType=VARCHAR}
+  </select>
+  
+  <update id="updateByTxno" parameterType="com.jyblife.logic.wl.ops.entity.LogisticsRepaymentLog" >
+    update t_logistics_repayment_log
+    <set >
+      <if test="logisticsId != null" >
+        logistics_id = #{logisticsId,jdbcType=INTEGER},
+      </if>
+      <if test="amount != null" >
+        `amount` = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        `status` = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusTime != null" >
+        status_time = #{statusTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where tx_no = #{txNo,jdbcType=VARCHAR}
+  </update>
+  
+</mapper>

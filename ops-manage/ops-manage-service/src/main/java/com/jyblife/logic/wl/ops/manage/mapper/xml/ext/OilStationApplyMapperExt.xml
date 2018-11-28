@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.OilStationApplyMapper" >
+
+	<select id="listPage" parameterType="com.jyblife.logic.wl.ops.manage.dto.OilStationApplyListDto$Search" 
+						  resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RepOilStationApplyListDto$OilStationApplyItem">
+	
+			SELECT
+			a.apply_id AS applyId,
+			a.`name`,
+			a.company_id AS companyId,
+			a.province_id AS provinceId,
+			a.city_id AS cityId,
+			a.address,
+			a.longitude,
+			a.latitude,
+			a.contact_person AS contactPerson,
+			a.contact_phone AS contactPhone,
+			a.`status`,
+			b.`name` AS companyName,
+			c.area_name AS provinceName,
+			d.area_name AS cityName
+		FROM
+			`t_oil_station_apply` a
+		LEFT JOIN `t_oil_company` b ON a.company_id = b.company_id
+		LEFT JOIN `t_area_code` c ON a.province_id = c.area_code
+		LEFT JOIN `t_area_code` d ON a.city_id = d.area_code
+		<where>
+			<if test="name != null and name != ''">
+	        	and a.`name` like concat('%',#{name},'%') 
+	      	</if>
+	      	<if test="companyId != null">
+	        	and a.company_id = #{companyId} 
+	      	</if>
+	      	<if test="status != null">
+	        	and a.`status` = #{status} 
+	      	</if>
+	      	<if test="stationId != null">
+	        	and a.`apply_id` = #{stationId}
+	      	</if>
+		</where>
+		order by a.apply_id desc
+	</select>
+
+	<insert id="insertStationApply" parameterType="com.jyblife.logic.wl.ops.entity.OilStationApply" >
+	<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="applyId">
+	  SELECT LAST_INSERT_ID()
+	</selectKey>
+    insert into t_oil_station_apply
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="applyId != null" >
+        apply_id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="companyId != null" >
+        company_id,
+      </if>
+      <if test="provinceId != null" >
+        province_id,
+      </if>
+      <if test="cityId != null" >
+        city_id,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="longitude != null" >
+        longitude,
+      </if>
+      <if test="latitude != null" >
+        latitude,
+      </if>
+      <if test="contactPerson != null" >
+        contact_person,
+      </if>
+      <if test="contactPhone != null" >
+        contact_phone,
+      </if>
+      <if test="rate != null" >
+        `rate`,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="statusTime != null" >
+        status_time,
+      </if>
+      <if test="effectTime != null" >
+        effect_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="updateUserId != null" >
+        update_user_id,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="applyId != null" >
+        #{applyId,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="companyId != null" >
+        #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="provinceId != null" >
+        #{provinceId,jdbcType=INTEGER},
+      </if>
+      <if test="cityId != null" >
+        #{cityId,jdbcType=INTEGER},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="longitude != null" >
+        #{longitude,jdbcType=DOUBLE},
+      </if>
+      <if test="latitude != null" >
+        #{latitude,jdbcType=DOUBLE},
+      </if>
+      <if test="contactPerson != null" >
+        #{contactPerson,jdbcType=VARCHAR},
+      </if>
+      <if test="contactPhone != null" >
+        #{contactPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="rate != null" >
+        #{rate,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusTime != null" >
+        #{statusTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="effectTime != null" >
+        #{effectTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateUserId != null" >
+        #{updateUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+	<select id="selectByApplyId"  parameterType="java.lang.Integer" resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RepOilStationApplyDetailDto">
+		SELECT
+			a.apply_id AS applyId,
+			a.`name`,
+			a.`rate`,
+			a.company_id AS companyId,
+			b.`name` AS companyName,
+			a.province_id AS provinceId,
+			c.area_name AS provinceName,
+			a.city_id AS cityId,
+			d.area_name AS cityName,
+			a.address,
+			a.longitude,
+			a.latitude,
+			a.contact_person AS contactPerson,
+			a.contact_phone AS contactPhone,
+			a.`status`,
+			a.remark,
+			DATE_FORMAT(a.effect_time,'%Y-%m-%d %H:%i:%S') AS effectTime,
+			DATE_FORMAT(a.update_time,'%Y-%m-%d %H:%i:%S') AS updateTime,
+			DATE_FORMAT(a.status_time,'%Y-%m-%d %H:%i:%S') AS statusTime,
+			DATE_FORMAT(a.create_time,'%Y-%m-%d %H:%i:%S') AS createTime,
+			a.update_user_id AS updateUserId,
+			a.create_user_id AS createUserId,
+			e.`name` AS updateUserName,
+			f.`name` AS createUserName
+		FROM
+			`t_oil_station_apply` a
+		LEFT JOIN `t_oil_company` b ON a.company_id = b.company_id
+		LEFT JOIN `t_area_code` c ON a.province_id = c.area_code
+		LEFT JOIN `t_area_code` d ON a.city_id = d.area_code
+		LEFT JOIN `t_system_user` e ON a.update_user_id = e.user_id
+		LEFT JOIN `t_system_user` f ON a.create_user_id = f.user_id
+		WHERE
+			a.apply_id = #{applyId}
+	</select>
+
+	<select id="selectByName" parameterType="java.util.Map" resultMap="BaseResultMap">
+		select 
+		<include refid="Base_Column_List" />
+	    from t_oil_station_apply
+	    <where>
+	    	`status` = 7 
+	    	<if test="name != null and name != ''">
+	    	 and `name` = #{name}
+	    	</if>
+	    	<if test="companyId != null">
+	    	 and `company_id` = #{companyId}
+	    	</if>
+	    </where>
+	</select>
+	
+</mapper>

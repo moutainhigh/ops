@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.external.mapper.OilStationMapper" >
+  
+  <select id="getOilStationInfoById" parameterType="java.lang.Integer" resultType="com.jyblife.logic.wl.ops.external.dto.resp.RespOilStationInfoDto">
+  	SELECT
+		a.station_id AS stationId,
+		a.`name`,a.address,
+		a.`longitude`,a.latitude,
+		a.company_id AS companyId,
+		a.province_id AS provinceId,
+		a.city_id AS cityId,
+		a.contact_person AS contactPerson,
+		a.contact_phone AS contactPhone,
+		a.remark AS remark,
+		a.`status`,
+		b.`name` AS companyName,
+		c.area_name AS province,
+		d.area_name AS city
+	FROM
+		t_oil_station a
+	LEFT JOIN t_oil_company b ON a.company_id = b.company_id
+	LEFT JOIN t_area_code c ON a.province_id = c.area_code
+	LEFT JOIN t_area_code d ON a.city_id = d.area_code
+	<where>
+		and a.station_id = #{stationId} AND b.`status` = 1 
+	</where>
+  </select>
+  
+  <select id="getEffectOilStationList" parameterType="com.jyblife.logic.wl.ops.entity.OilStation" 
+  									   resultType="com.jyblife.logic.wl.ops.external.dto.resp.RespEffectOilStationListDto$OilStationItem">
+  									   
+  	SELECT
+		a.station_id AS stationId,
+		a.`name`,a.address,
+		a.`longitude`,a.latitude,
+		a.company_id AS companyId,
+		a.province_id AS provinceId,
+		a.city_id AS cityId,
+		a.contact_person AS contactPerson,
+		a.contact_phone AS contactPhone,
+		a.remark AS remark,
+		a.`status`,
+		b.`name` AS companyName,
+		c.area_name AS province,
+		d.area_name AS city
+	FROM
+		t_oil_station a
+	JOIN t_oil_company b ON a.company_id = b.company_id
+	LEFT JOIN t_area_code c ON a.province_id = c.area_code
+	LEFT JOIN t_area_code d ON a.city_id = d.area_code
+	<where>
+		a.`status` = 1 and b.`status` = 1 
+		<if test="provinceId != null">
+		and a.province_id = #{provinceId}
+		</if>
+		<if test="cityId != null">
+		and a.city_id = #{cityId}
+		</if>
+		<if test="name != null and name != ''">
+		and a.`name` like concat('%',#{name},'%') 
+		</if>
+	</where>
+	ORDER BY a.station_id DESC								   
+  
+  </select>
+  
+  <select id="getMostVisitStationByCustId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  	SELECT * FROM t_oil_station WHERE station_id = (
+	SELECT station_id FROM (
+	SELECT COUNT(1) AS num, station_id FROM t_order WHERE customer_id = #{customerId} GROUP BY station_id ORDER BY num DESC LIMIT 1 
+	) A)
+  </select>
+  
+</mapper>

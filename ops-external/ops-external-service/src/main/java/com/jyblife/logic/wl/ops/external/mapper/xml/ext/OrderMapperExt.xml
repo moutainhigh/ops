@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.external.mapper.OrderMapper" >
+
+    <resultMap id="OrderDetailMap" type="com.jyblife.logic.wl.ops.external.dto.resp.RespOrderDetailDto">
+        <id property="orderId" column="order_id"></id>
+        <result property="code" column="code"></result>
+        <result property="status" column="status"></result>
+        <result property="quantity" column="quantity"></result>
+        <result property="retailPrice" column="price_retail"></result>
+        <result property="agreedPrice" column="price_buy"></result>
+        <result property="discountPrice" column="price_sell"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="effectTime" column="effect_time"></result>
+        <result property="failedReason" column="failed_reason"></result>
+        <result property="orderType" column="order_type"></result>
+        <result property="remark" column="remark"></result>
+        <result property="sellAmount" column="sell_amount"></result>
+        <result property="buyAmount" column="buy_amount"></result>
+        <association property="goods" javaType="com.jyblife.logic.wl.ops.external.dto.resp.RespOrderDetailDto$GoodsItem">
+            <id property="id" column="g_id"></id>
+            <result property="name" column="g_name"></result>
+        </association>
+        <association property="customer" javaType="com.jyblife.logic.wl.ops.external.dto.resp.RespOrderDetailDto$CustomerItem">
+            <id property="id" column="c_id"></id>
+            <result property="name" column="c_name"></result>
+            <result property="phone" column="c_phone"></result>
+            <result property="password" column="c_password"></result>
+        </association>
+        <association property="logistics" javaType="com.jyblife.logic.wl.ops.external.dto.resp.RespOrderDetailDto$LogisticsItem">
+            <id property="id" column="l_id"></id>
+            <result property="name" column="l_name"></result>
+        </association>
+        <association property="vehicle" javaType="com.jyblife.logic.wl.ops.external.dto.resp.RespOrderDetailDto$VehicleItem">
+            <id property="id" column="v_id"></id>
+            <result property="number" column="v_number"></result>
+            <result property="model" column="v_model"></result>
+        </association>
+        <association property="oilStation" javaType="com.jyblife.logic.wl.ops.external.dto.resp.RespOrderDetailDto$OilStationItem">
+            <id property="id" column="s_id"></id>
+            <result property="name" column="s_name"></result>
+            <result property="address" column="s_address"></result>
+        </association>
+    </resultMap>
+
+    <select id="selectOrderDetail" resultMap="OrderDetailMap" parameterType="java.lang.Long">
+        SELECT
+			o.order_id,
+			o.`code`,
+			o.`status`,
+			o.quantity,
+			o.price_retail,
+			o.price_buy,
+			o.price_sell,
+			o.create_time,
+			o.effect_time,
+			o.failed_reason,
+			o.order_type,
+			o.remark,
+			round(o.quantity * o.price_buy) AS buy_amount,
+			round(o.quantity * o.price_sell) AS sell_amount,
+			g.goods_id AS g_id,
+			g.NAME AS g_name,
+			c.customer_id AS c_id,
+			c.NAME AS c_name,
+			c.phone AS c_phone,
+			c.PASSWORD AS c_password,
+			l.logistics_id AS l_id,
+			l.NAME AS l_name,
+			v.vehicle_id AS v_id,
+			v.number AS v_number,
+			v.model AS v_model,
+			s.station_id AS s_id,
+			s.NAME AS s_name,
+			s.address AS s_address
+		FROM
+			t_order o
+		LEFT JOIN t_driver c ON o.customer_id = c.customer_id
+		LEFT JOIN t_logistics_company l ON o.logistics_id = l.logistics_id
+		LEFT JOIN t_vehicle v ON o.vehicle_id = v.vehicle_id
+		LEFT JOIN t_oil_goods g ON g.goods_id = o.goods_id
+		LEFT JOIN t_oil_station s ON s.station_id = o.station_id
+		WHERE
+			o.order_id = #{orderId}
+    </select>
+
+    <select id="selectPageByCustomerId" parameterType="com.jyblife.logic.wl.ops.external.dto.req.ReqUserOrderListDto"
+            resultType="com.jyblife.logic.wl.ops.external.dto.resp.RespUserOrderListDto$OrderItem">
+        SELECT
+			o.order_id AS orderId,
+			o.`status`,
+			o.quantity,
+			o.price_sell AS discountPrice,
+			o.price_buy AS agreedPrice,
+			o.price_retail AS retailPrice,
+			round(o.price_buy * o.quantity) AS buyAmount,
+			round(o.price_sell * o.quantity) AS sellAmount,
+			o.create_time AS createTime,
+			o.effect_time AS effectTime,
+			o.failed_reason AS failedReason,
+			o.goods_id AS goodsId,
+			o.customer_id AS customerId,
+			o.logistics_id AS logisticsId,
+			o.vehicle_id AS vehicleId,
+			o.station_id AS oilStationId,
+			c.NAME AS customerName,
+			c.phone AS customerPhone,
+			l.NAME AS logisticsName,
+			v.number AS vehicleNumber,
+			v.model AS vehicleModel,
+			s.NAME AS oilStationName,
+			s.address AS oilStationAddress,
+			g.NAME AS goodsName
+		FROM
+			t_order o
+		LEFT JOIN t_driver c ON o.customer_id = c.customer_id
+		LEFT JOIN t_logistics_company l ON o.logistics_id = l.logistics_id
+		LEFT JOIN t_vehicle v ON o.vehicle_id = v.vehicle_id
+		LEFT JOIN t_oil_goods g ON g.goods_id = o.goods_id
+		LEFT JOIN t_oil_station s ON s.station_id = o.station_id
+		<where>
+			o.customer_id = #{customerId}
+			<if test="status != null and status == '10'.toString()">
+			and o.`status` = #{status}
+			</if>
+			<if test="status != null and status == '-1'.toString()">
+			and o.`status` = #{status}
+			</if>
+		</where>
+		ORDER BY o.create_time DESC
+    </select>
+
+    <select id="selectUserOrderList" resultType="com.jyblife.logic.wl.ops.external.dto.resp.RespUserOrderDto">
+        SELECT
+			o.goods_id AS goodsId,
+			o.vehicle_id AS vehicleId,
+			g.NAME AS goodsName,
+			v.number AS vehicleNumber,
+			v.model AS vehicleModel,
+			v.capacity AS maxAvailableQuantity
+		FROM
+			t_order o
+		LEFT JOIN t_vehicle v ON o.vehicle_id = v.vehicle_id
+		LEFT JOIN t_oil_goods g ON g.goods_id = o.goods_id
+        WHERE o.customer_id = #{customerId} and o.station_id = #{stationId}
+          <if test="goodsId !=null">
+              and o.goods_id = #{goodsId}
+          </if>
+    </select>
+
+    <insert id="insertOrder" parameterType="com.jyblife.logic.wl.ops.entity.Order" >
+    <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="orderId">
+        SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="code != null" >
+        code,
+      </if>
+      <if test="orderType!= null" >
+        order_type,
+      </if>
+      <if test="customerId != null" >
+        customer_id,
+      </if>
+      <if test="vehicleId != null" >
+        vehicle_id,
+      </if>
+      <if test="stationId != null" >
+        station_id,
+      </if>
+      <if test="goodsId != null" >
+        goods_id,
+      </if>
+      <if test="quantity != null" >
+        quantity,
+      </if>
+      <if test="priceBuy != null" >
+        price_buy,
+      </if>
+      <if test="priceSell != null" >
+        price_sell,
+      </if>
+      <if test="priceRetail != null" >
+        price_retail,
+      </if>
+      <if test="oilCompanyId != null" >
+        oil_company_id,
+      </if>
+      <if test="logisticsId != null" >
+        logistics_id,
+      </if>
+      <if test="failedReason != null" >
+        failed_reason,
+      </if>
+      <if test="effectTime != null" >
+        effect_time,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="statusTime != null" >
+        status_time,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateUserId != null" >
+        update_user_id,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="orderId != null" >
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="code != null" >
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="orderType!= null" >
+        #{orderType,jdbcType=INTEGER},
+      </if>
+      <if test="customerId != null" >
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="vehicleId != null" >
+        #{vehicleId,jdbcType=INTEGER},
+      </if>
+      <if test="stationId != null" >
+        #{stationId,jdbcType=INTEGER},
+      </if>
+      <if test="goodsId != null" >
+        #{goodsId,jdbcType=INTEGER},
+      </if>
+      <if test="quantity != null" >
+        #{quantity,jdbcType=DECIMAL},
+      </if>
+      <if test="priceBuy != null" >
+        #{priceBuy,jdbcType=INTEGER},
+      </if>
+      <if test="priceSell != null" >
+        #{priceSell,jdbcType=INTEGER},
+      </if>
+      <if test="priceRetail != null" >
+        #{priceRetail,jdbcType=INTEGER},
+      </if>
+      <if test="oilCompanyId != null" >
+        #{oilCompanyId,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsId != null" >
+        #{logisticsId,jdbcType=INTEGER},
+      </if>
+      <if test="failedReason != null" >
+        #{failedReason,jdbcType=VARCHAR},
+      </if>
+      <if test="effectTime != null" >
+        #{effectTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusTime != null" >
+        #{statusTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null" >
+        #{updateUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  <select id="getCurDateLatestOrderCode" resultType="java.lang.String">
+  	select `code` from t_order where DATE_FORMAT(create_time, '%Y-%m-%d') = DATE_FORMAT(CURDATE(), '%Y-%m-%d') order by order_id desc limit 1 
+  </select>
+
+  <select id="selectLogicPageList" parameterType="com.jyblife.logic.wl.ops.external.dto.req.ReqLogicOrderListDto"
+          resultType="com.jyblife.logic.wl.ops.external.dto.resp.RespLogicOrderListDto$OrderItem">
+    select o.code as ordId,o.effect_time as ordPayTime,o.quantity as refuelNumber,o.order_type as `type`,
+           o.price_sell as logiPrice,o.price_retail as retailPrice,round(o.price_sell*o.quantity) as logiSettleAmount,
+           d.name as customerName,o.remark,
+           v.number as plateInfo,v.model as carModel,
+           s.name as oilName,s.address as oilAdress,
+           g.name as oilType
+    from t_order o
+    left join t_driver d on o.customer_id = d.customer_id
+    left join t_vehicle v on o.vehicle_id = v.vehicle_id
+    left join t_oil_station s on o.station_id = s.station_id
+    left join t_oil_goods g on o.goods_id = g.goods_id
+    <where>
+        o.status != -1
+        <if test="ordId!=null and ordId!=''">
+            and o.code = #{ordId}
+        </if>
+        <if test="logiCode!=null and logiCode!=''">
+            and o.logistics_id = #{logiCode}
+        </if>
+        <if test="ordPayTime!=null and ordPayTime!=''">
+            and o.effect_time &gt;= #{ordPayTime}
+        </if>
+        <if test="ordPayTimeEnd!=null and ordPayTimeEnd!=''">
+            and o.effect_time &lt;= #{ordPayTimeEnd}
+        </if>
+        <if test="plateInfo!=null and plateInfo!=''">
+            and v.number like concat('%',#{plateInfo},'%')
+        </if>
+        <if test="customerName!=null and customerName!=''">
+            and d.name like concat('%',#{customerName},'%')
+        </if>
+        <if test="carModel!=null and carModel!=''">
+            and v.model like concat('%',#{carModel},'%')
+        </if>
+    </where>
+      order by o.create_time desc
+  </select>
+
+
+    <select id="selectVehicleCount" resultType="java.lang.Integer">
+        select count( DISTINCT vehicle_id)
+        from t_order
+        where logistics_id = #{logisticsId} and create_time &gt;= #{startDate} and create_time &lt;= #{endDate}
+        and `status`= 10 and (order_type = 3 or  order_type = 1 )
+    </select>
+
+    <select id="selectOrderCount" resultType="java.lang.Integer">
+        select count(0)
+        from t_order
+        where logistics_id = #{logisticsId} and create_time &gt;= #{startDate} and create_time &lt;= #{endDate}
+        and `status`= 10 and (order_type = 3 or  order_type = 1 )
+    </select>
+
+    <select id="selectConsumeAmount" resultType="java.math.BigDecimal">
+        select IFNULL(sum(round(quantity*price_sell)),0)
+        from t_order
+        where logistics_id = #{logisticsId} and create_time &gt;= #{startDate} and create_time &lt;= #{endDate}
+        and `status`= 10 and (order_type = 3 or  order_type = 1 )
+    </select>
+    
+    <select id="selectMonthSumByCustomerId" parameterType="java.lang.Integer" resultType="java.util.Map">
+    	SELECT
+			SUM(quantity) AS totalQuantity,
+			DATE_FORMAT(create_time, '%Y-%m') AS `month`
+		FROM
+			t_order
+		WHERE
+			customer_id = #{customerId} AND `status` = 10 
+		GROUP BY `month`
+    </select>
+
+
+    <select id="selectOilCompanyPageList" parameterType="com.jyblife.logic.wl.ops.external.dto.req.ReqOilCompanyOrderListDto"
+            resultType="com.jyblife.logic.wl.ops.external.dto.resp.RespOilCompanyOrderListDto$OilCompanyOrderItem">
+        select o.code as ordId,o.create_time as ordCreateTime, o.effect_time as ordPayDate,o.effect_time as ordPayTime,o.quantity as refuelNumber,
+              o.price_retail as retailPrice,o.price_sell as logiPrice,o.price_buy as oilsPrice,o.order_type as `type`,
+              round(o.price_sell*o.quantity) as logiSettleAmount,round(o.price_buy*o.quantity) as oilsSettleAmount,
+              s.station_id as oilCode,s.name as oilName,
+              c.logistics_id as logiCode,c.name as logisticsName,
+              v.number as plateInfo,
+              o.remark as remark,
+              g.name as oilType
+        from t_order o
+        left join t_driver d on o.customer_id = d.customer_id
+        left join t_vehicle v on o.vehicle_id = v.vehicle_id
+        left join t_oil_station s on o.station_id = s.station_id
+        left join t_oil_goods g on o.goods_id = g.goods_id
+        left join t_logistics_company c on o.logistics_id = c.logistics_id
+        <where>
+             o.status != -1
+            <if test="oilCode!=null and oilCode!=''">
+                and s.station_id = #{oilCode}
+            </if>
+            <if test="ordId!=null and ordId!=''">
+                and o.code = #{ordId}
+            </if>
+            <if test="ordCreateTime!=null and ordCreateTime!=''">
+                and o.create_time &gt;= #{ordCreateTime}
+            </if>
+            <if test="ordCreateTimeEnd!=null and ordCreateTimeEnd!=''">
+                and o.create_time &lt;= #{ordPayTimeEnd}
+            </if>
+            <if test="logiCode!=null and logiCode!=''">
+                and o.logistics_id = #{logiCode}
+            </if>
+            <if test="ordPayTime!=null and ordPayTime!=''">
+                and o.effect_time &gt;= #{ordPayTime}
+            </if>
+            <if test="ordPayTimeEnd!=null and ordPayTimeEnd!=''">
+                and o.effect_time &lt;= #{ordPayTimeEnd}
+            </if>
+            <if test="plateInfo!=null and plateInfo!=''">
+                and v.number like concat('%',#{plateInfo},'%')
+            </if>
+        </where>
+        order by o.create_time desc
+    </select>
+
+
+	<!-- 油站订单打印sql -->
+	<select id="selectPrintOilOrder" parameterType="com.jyblife.logic.wl.ops.external.dto.req.ReqOilOrderPrintDto"
+            resultType="com.jyblife.logic.wl.ops.external.dto.resp.RespOilOrderPrintDto">
+        select o.code as ordId,
+               o.effect_time as ordPayTime,
+               o.quantity as refuelNumber,
+               s.station_id as oilCode,
+               s.name as oilName,
+               v.number as plateInfo,
+               g.name as oilType
+        from t_order o
+        left join t_vehicle v on o.vehicle_id = v.vehicle_id
+        left join t_oil_station s on o.station_id = s.station_id
+        left join t_oil_goods g on o.goods_id = g.goods_id
+        where o.code = #{ordId}
+    </select>
+
+</mapper>

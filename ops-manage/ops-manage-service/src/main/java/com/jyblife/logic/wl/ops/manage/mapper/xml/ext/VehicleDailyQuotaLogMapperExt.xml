@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.VehicleDailyQuotaLogMapper" >
+
+  <select id="selectQuotaLogPageList" resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespVehicleQuotaLogListDto$VehicleQuotaLogItem" parameterType="com.jyblife.logic.wl.ops.manage.dto.VehicleQuotaLogListDto$Search" >
+    SELECT
+	a.relation_id AS relationId,
+	a.quota,
+	a.create_time AS createTime,
+	b.code AS orderCode
+	FROM
+		t_vehicle_daily_quota_log a LEFT JOIN t_order b ON a.relation_id = b.order_id
+    <where>
+      <if test="vehicleId != null ">
+        and a.vehicle_id=#{vehicleId}
+      </if>
+      <if test="createTimeStart != null and createTimeStart!=''" >
+        and a.create_time &gt;= #{createTimeStart}
+      </if>
+      <if test="createTimeEnd != null and createTimeEnd!=''" >
+        and a.create_time &lt;= #{createTimeEnd}
+      </if>
+    </where>
+    ORDER BY a.create_time DESC
+  </select>
+
+</mapper>

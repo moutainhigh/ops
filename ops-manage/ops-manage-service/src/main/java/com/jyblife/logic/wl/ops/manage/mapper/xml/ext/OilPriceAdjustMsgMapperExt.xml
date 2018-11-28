@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.OilPriceAdjustMsgMapper" >
+  	
+  	<update id="executeByPriceId" parameterType="com.jyblife.logic.wl.ops.entity.OilPriceAdjustMsg">
+	  	update t_oil_price_adjust_msg
+	  	set effect_time = #{effectTime,jdbcType=TIMESTAMP} 
+	  	where price_id = #{priceId,jdbcType=INTEGER}
+	</update>
+  	
+</mapper>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.SystemModuleMapper">
+
+	<select id="selectByModuleIds" parameterType="java.util.List" resultMap="BaseResultMap">
+		select 
+	    <include refid="Base_Column_List" />
+	    from t_system_module where is_menu = 1 and `status` = 1 and `id` in 
+	    <foreach collection="moduleIds" item="moduleId" open="(" close=")" separator=",">
+	  		#{moduleId}
+	  	</foreach>
+	  	order by order_index 
+	</select>
+
+</mapper>

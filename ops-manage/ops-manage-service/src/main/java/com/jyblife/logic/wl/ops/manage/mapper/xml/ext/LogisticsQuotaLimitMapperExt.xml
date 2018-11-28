@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.LogisticsQuotaLimitMapper" >
+
+  <select id="selectPageList" resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespLogisticsLimitListDto$LogisticsLimitItem"
+          parameterType="com.jyblife.logic.wl.ops.manage.dto.LogisticsLimitListDto$Search" >
+    select L.limit_id as limitId,L.code,L.rate,L.create_user_id as createUserId,L.create_time as createTime,
+            U.user_name as createUserName
+    from t_logistics_quota_limit L
+    left join t_system_user U on L.create_user_id = U.user_id
+    <where>
+      <if test="createTimeStart != null and createTimeStart!=''" >
+        and L.create_time &gt;= #{createTimeStart}
+      </if>
+      <if test="createTimeEnd != null and createTimeEnd!=''" >
+        and L.create_time &lt; #{createTimeEnd}
+      </if>
+      <if test="code!=null and code !=''">
+          and L.code like concat('%',#{code,jdbcType=VARCHAR},'%') 
+      </if>
+    </where>
+    order by L.create_time desc
+  </select>
+
+  <select id="selectCurrentDetail" resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespLogisticsLimitDetailDto">
+    select l.limit_id as limitId,l.code,l.rate,l.create_time as createTime,l.status,
+    u.user_name as createUserName
+    from t_logistics_quota_limit l
+    left join t_system_user u on l.create_user_id = u.user_id
+    where l.`status` = 1 
+    order by l.limit_id desc
+    limit 1
+  </select>
+  
+  <select id="selectCurrent" resultMap="BaseResultMap">
+      select 
+      <include refid="Base_Column_List" />
+      from t_logistics_quota_limit
+      where `status` = 1 order by effect_time DESC limit 1
+  </select>
+
+</mapper>

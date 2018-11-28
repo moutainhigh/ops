@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.OilPrintMapper" >
+
+ 	<!-- 打印机管理list查询 -->
+	<select id="listPage" parameterType="com.jyblife.logic.wl.ops.manage.dto.OilPrintListDto$Search" 
+						  resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespOilPrintListDto$PrintItem">
+	
+		SELECT
+			print_id AS printId,
+			station_id AS stationId,
+			station_name AS stationName,
+			print_sn AS printSn,
+			print_name AS printName,
+			sim_card as simCard
+		FROM
+			`t_oil_print` 
+		<where>
+	      	<if test="printSn != null and printSn != ''">
+	        	 print_sn like concat('%',#{printSn},'%')
+	      	</if>
+		</where>
+		order by print_id desc
+	</select>
+	
+	<!-- 打印机SN唯一查询 -->
+	<select id="selectByPrintSn" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(1) from t_oil_print where print_sn = #{printSn} 
+	</select>
+	
+	<!-- 打印机SN唯一查询 -->
+	<select id="selectByPrintId" parameterType="java.lang.String" resultType="com.jyblife.logic.wl.ops.entity.OilPrint">
+		SELECT
+			print_id AS printId,
+			station_id AS stationId,
+			station_name AS stationName,
+			print_sn AS printSn,
+			print_name AS printName,
+			sim_card as simCard
+		FROM
+			`t_oil_print` 
+	    where print_id = #{printId} 
+	</select>
+
+
+
+</mapper>

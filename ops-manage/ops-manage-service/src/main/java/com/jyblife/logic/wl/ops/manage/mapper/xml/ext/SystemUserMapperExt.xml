@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.SystemUserMapper">
+
+  
+  <select id="selectUserCenterUsers" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_system_user
+    where user_center_id != 0 and user_center_id is not null
+  </select>
+  
+  <delete id="deleteUsersByUserCenterIds" parameterType="java.util.List">
+  	delete from t_system_user where user_center_id in 
+  	<foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+  		#{userId}
+  	</foreach>
+  </delete>
+  
+  <update id="updatePwd" parameterType="com.jyblife.logic.wl.ops.entity.SystemUser">
+  	UPDATE t_system_user SET `password` = #{password}, update_user_id = #{updateUserId}, update_time = now() WHERE user_id = #{userId}
+  </update>
+  
+  <update id="updateUserLoginInfo" parameterType="java.lang.Integer">
+  	UPDATE t_system_user SET login_count = login_count+1, login_time = now() WHERE user_id = #{userId}
+  </update>
+
+  <insert id="insertSystemUser" parameterType="com.jyblife.logic.wl.ops.entity.SystemUser">
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="userId">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_system_user (user_id, user_center_id, user_name,
+    password, role_ids, login_key,
+    login_count, login_time, identity,
+    main_role_id, weixin, phone,
+    email, status, is_right_role,
+    corp_ids, name, remark,
+    create_user_id, create_time, update_user_id,
+    update_time, right_codes)
+    values (#{userId,jdbcType=INTEGER}, #{userCenterId,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR},
+    #{password,jdbcType=VARCHAR}, #{roleIds,jdbcType=VARCHAR}, #{loginKey,jdbcType=VARCHAR},
+    #{loginCount,jdbcType=INTEGER}, #{loginTime,jdbcType=TIMESTAMP}, #{identity,jdbcType=VARCHAR},
+    #{mainRoleId,jdbcType=INTEGER}, #{weixin,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR},
+    #{email,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{isRightRole,jdbcType=TINYINT},
+    #{corpIds,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR},
+    #{createUserId,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=INTEGER},
+    #{updateTime,jdbcType=TIMESTAMP}, #{rightCodes,jdbcType=LONGVARCHAR})
+  </insert>
+
+  <select id="listPageUser" parameterType="com.jyblife.logic.wl.ops.manage.dto.SytemUserListDto$Search" 
+  							resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespSystemUserListDto$UserItem">
+      SELECT
+		a.user_id AS userId, a.user_name AS userName, a.password, a.role_ids AS roleIds, a.login_key AS loginKey, a.login_count AS loginCount,
+		a.login_time AS loginTime, a.identity, a.main_role_id AS mainRoleId, a.weixin, a.phone, a.email, a.`status`, a.is_right_role AS isRightRole, 
+		a.corp_ids AS corpIds, a.`name`, a.remark, a.create_user_id AS createUserId, a.create_time AS createTime, a.update_user_id AS updateUserId, 
+		a.update_time AS updateTime, b.name AS roleName
+      FROM t_system_user a LEFT JOIN t_system_role b on a.main_role_id = b.role_id 
+      <where>
+          <if test="name!=null and name!=''">
+              and a.`name` LIKE concat('%',#{name,jdbcType=VARCHAR},'%') 
+          </if>
+          <if test="userName!=null and userName!=''">
+              and a.user_name LIKE concat('%',#{userName,jdbcType=VARCHAR},'%') 
+          </if>
+          <if test="mainRoleId!=null and mainRoleId!=''">
+              and a.main_role_id = #{mainRoleId}
+          </if>
+          <if test="roleId!=null and roleId!=''">
+              and a.role_ids regexp concat('^', #{roleId},'$|','^', #{roleId},',\.*$|','^\.*,', #{roleId},',\.*$|','^\.+,', #{roleId},'$')
+          </if>
+      </where>
+      ORDER BY a.user_id DESC
+  </select>
+  
+</mapper>

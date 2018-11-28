@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.OilPriceApplyMapper" >
+
+  <insert id="insertPriceApply" parameterType="com.jyblife.logic.wl.ops.entity.OilPriceApply" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="applyId">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_oil_price_apply (`code`, remark, 
+      `status`, status_time, effect_time, 
+      create_time, update_user_id, update_time, 
+      create_user_id)
+    values (#{code,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER}, #{statusTime,jdbcType=TIMESTAMP}, #{effectTime,jdbcType=TIMESTAMP}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{createUserId,jdbcType=INTEGER})
+  </insert>
+
+
+  <select id="selectPageList" parameterType="com.jyblife.logic.wl.ops.manage.dto.OilPriceApplyListDto$Search"
+          resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespOilPriceApplyListDto$OilPriceApplyItem">
+    select p.code,p.apply_id as applyId,p.status,p.create_time as createTime,
+          s.user_id as createUserId,s.name as createUserName
+    from t_oil_price_apply p
+    left join t_system_user s on p.create_user_id = s.user_id
+    <where>
+      <if test="code!=null and code!=''">
+        and p.code like concat('%',#{code},'%')
+      </if>
+      <if test="status !=null">
+        and p.status = #{status}
+      </if>
+      <if test="startCreateTime !=null and startCreateTime!=''">
+        and p.create_time &gt;= #{startCreateTime}
+      </if>
+      <if test="endCreateTime !=null and endCreateTime!=''">
+        and p.create_time &lt;= #{endCreateTime}
+      </if>
+      <if test="createUserName!=null and createUserName!=''">
+        and s.name like concat('%',#{createUserName},'%')
+      </if>
+    </where>
+    order by p.create_time desc
+  </select>
+  
+  <select id="selectAuditList" parameterType="com.jyblife.logic.wl.ops.manage.dto.OilPriceAuditListDto$Search"
+          resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespOilPriceAuditListDto$OilPriceAuditItem">
+  	select 
+  		p.code,p.apply_id as applyId,p.status,p.create_time as createTime,s.name as createUserName 
+    from t_oil_price_apply p
+    left join t_system_user s on p.create_user_id = s.user_id
+    <where>
+      <if test="code != null and code!= ''">
+        and p.code like concat('%',#{code},'%')
+      </if>
+      <if test="status != null">
+        and p.status = #{status}
+      </if>
+      <if test="createStartTime != null and createStartTime != ''">
+        and p.create_time &gt;= #{createStartTime}
+      </if>
+      <if test="createEndTime !=null and createEndTime !=''">
+        and p.create_time &lt;= #{createEndTime}
+      </if>
+      <if test="createUserName != null and createUserName != ''">
+        and s.name like concat('%',#{createUserName},'%')
+      </if>
+    </where>
+    order by p.create_time desc
+  </select>
+  
+</mapper>

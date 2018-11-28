@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.external.mapper.AreaCodeMapper" >
+
+  <resultMap type="com.jyblife.logic.wl.ops.external.dto.resp.AreaCodeDto" id="AreaTreeMap">
+    <id column="area_code" property="id"/>
+    <result column="area_name" property="name"/>
+    <collection property="children" ofType="com.jyblife.logic.wl.ops.external.dto.resp.AreaCodeDto" column="area_code" select="selectChildByCode">
+    </collection>
+  </resultMap>
+
+  <select id="selectTreeCode" parameterType="java.lang.Integer" resultMap="AreaTreeMap">
+    select area_code,area_name
+    from t_area_code
+    where area_code = #{areaCode,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectChildByCode" parameterType="java.lang.Integer" resultMap="AreaTreeMap">
+    select area_code,area_name
+    from t_area_code
+    where p_area_code = #{areaCode,jdbcType=INTEGER}
+  </select>
+
+	<select id="selectAll" resultMap="BaseResultMap"> 
+		select * from t_area_code where `level` != 3 order by `level` 
+	</select>
+	
+</mapper>

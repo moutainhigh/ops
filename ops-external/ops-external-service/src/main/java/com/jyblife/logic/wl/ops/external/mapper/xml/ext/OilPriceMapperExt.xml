@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.external.mapper.OilPriceMapper" >
+
+  	<select id="selectByGoodsId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from t_oil_price
+		where goods_id = #{goodsId,jdbcType=INTEGER}
+		order by price_id desc
+		limit 1
+	</select>
+
+	<select id="getEffectByStationIdAndGoodsId" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from t_oil_price
+		where goods_id = #{goodsId,jdbcType=INTEGER} and station_id = #{stationId,jdbcType=INTEGER} 
+		and `status` = 1 and effect_time <![CDATA[<=]]> now() and end_time <![CDATA[>=]]> now() 
+		order by effect_time DESC, price_id DESC limit 1
+	</select>
+	
+	<select id="getOilPriceInfoByStationId" parameterType="java.lang.Integer" resultType="com.jyblife.logic.wl.ops.external.dto.resp.RespOilStationInfoDto$Goods">
+		SELECT * FROM (
+		SELECT
+			a.goods_id AS goodsId,
+			a.retail_price AS retailPrice,
+			a.agreed_price AS agreedPrice,
+			a.discount_price AS discountPrice,
+			b.`name`
+		FROM
+			t_oil_price a
+		JOIN t_oil_goods b ON a.goods_id = b.goods_id 
+		WHERE
+			a.`status` = 1 AND b.`status` = 1 AND a.station_id = #{stationId}
+			AND a.effect_time <![CDATA[<=]]> now() AND a. end_time <![CDATA[>=]]> now()
+			AND a.retail_price > 0 AND a.agreed_price > 0 AND a.discount_price > 0
+		ORDER BY a.effect_time DESC
+		) A GROUP BY goodsId
+	</select>
+
+
+	<select id="getEffectListByStationIdAndGoodsId" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from t_oil_price
+		where station_id = #{stationId,jdbcType=INTEGER}
+			and `status` = 1 and effect_time <![CDATA[<=]]> now() and end_time <![CDATA[>=]]> now()
+			<if test="goodsId!=null">
+				and goods_id = #{goodsId,jdbcType=INTEGER}
+			</if>
+		order by effect_time DESC, price_id DESC
+	</select>
+	
+	<select id="getOilPriceList" parameterType="com.jyblife.logic.wl.ops.external.dto.req.ReqOilPriceListDto$Search" 
+								 resultType="com.jyblife.logic.wl.ops.external.dto.resp.RespOilPriceListDto$OilPriceItem">
+								 
+		SELECT
+			A.`status`,
+			A.retail_price AS retailPrice,
+			A.agreed_price AS agreedPrice,
+			A.discount_price AS discountPrice,
+			A.effect_time AS effectTime,
+			A.end_time AS endTime,
+			B.`code` AS `code`,
+			E.`name` AS goodsName
+		FROM
+			t_oil_price A
+		LEFT JOIN t_oil_price_apply B ON A.apply_id = B.apply_id
+		LEFT JOIN t_oil_goods E ON A.goods_id = E.goods_id
+		<where>
+	     <if test="status != null and status == '1'.toString()">
+	       and A.effect_time &gt; NOW() 
+	     </if>
+	     <if test="status != null and status == '2'.toString()">
+	       and A.effect_time &lt;= NOW() and A.end_time &gt;= NOW() 
+	     </if>
+	     <if test="status != null and status == '3'.toString()">
+	       and A.end_time &lt; NOW() 
+	     </if>
+	     <if test="effectStartTime != null and effectStartTime != ''">
+	       and A.effect_time &gt;= #{effectStartTime}
+	     </if>
+	     <if test="effectEndTime !=null and effectEndTime !=''">
+	       and A.effect_time &lt;= #{effectEndTime}
+	     </if>
+	     <if test="unEffectStartTime != null and unEffectStartTime != ''">
+	       and A.end_time &gt;= #{unEffectStartTime}
+	     </if>
+	     <if test="unEffectEndTime !=null and unEffectEndTime !=''">
+	       and A.end_time &lt;= #{unEffectEndTime}
+	     </if>
+	     <if test="stationId != null">
+	       and A.`station_id` = #{stationId}
+	     </if>
+	   </where>
+		ORDER BY A.effect_time DESC
+	</select>
+
+</mapper>

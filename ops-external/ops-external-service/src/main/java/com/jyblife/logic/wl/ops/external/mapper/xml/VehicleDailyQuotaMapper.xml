@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.external.mapper.VehicleDailyQuotaMapper" >
+  <resultMap id="BaseResultMap" type="com.jyblife.logic.wl.ops.entity.VehicleDailyQuota" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="vehicle_id" property="vehicleId" jdbcType="INTEGER" />
+    <result column="current_date" property="currentDate" jdbcType="DATE" />
+    <result column="frozen_quota" property="frozenQuota" jdbcType="DECIMAL" />
+    <result column="used_quota" property="usedQuota" jdbcType="DECIMAL" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="status_time" property="statusTime" jdbcType="TIMESTAMP" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="create_user_id" property="createUserId" jdbcType="INTEGER" />
+    <result column="effect_time" property="effectTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_user_id" property="updateUserId" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, vehicle_id, `current_date`, frozen_quota, used_quota, status, status_time, remark, 
+    create_user_id, effect_time, create_time, update_user_id, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_vehicle_daily_quota
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_vehicle_daily_quota
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jyblife.logic.wl.ops.entity.VehicleDailyQuota" >
+    insert into t_vehicle_daily_quota (id, vehicle_id, `current_date`, 
+      frozen_quota, used_quota, status, 
+      status_time, remark, create_user_id, 
+      effect_time, create_time, update_user_id, 
+      update_time)
+    values (#{id,jdbcType=BIGINT}, #{vehicleId,jdbcType=INTEGER}, #{currentDate,jdbcType=DATE}, 
+      #{frozenQuota,jdbcType=DECIMAL}, #{usedQuota,jdbcType=DECIMAL}, #{status,jdbcType=INTEGER}, 
+      #{statusTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR}, #{createUserId,jdbcType=INTEGER}, 
+      #{effectTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=INTEGER}, 
+      #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jyblife.logic.wl.ops.entity.VehicleDailyQuota" >
+    insert into t_vehicle_daily_quota
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="vehicleId != null" >
+        vehicle_id,
+      </if>
+      <if test="currentDate != null" >
+        `current_date`,
+      </if>
+      <if test="frozenQuota != null" >
+        frozen_quota,
+      </if>
+      <if test="usedQuota != null" >
+        used_quota,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="statusTime != null" >
+        status_time,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="effectTime != null" >
+        effect_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateUserId != null" >
+        update_user_id,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="vehicleId != null" >
+        #{vehicleId,jdbcType=INTEGER},
+      </if>
+      <if test="currentDate != null" >
+        #{currentDate,jdbcType=DATE},
+      </if>
+      <if test="frozenQuota != null" >
+        #{frozenQuota,jdbcType=DECIMAL},
+      </if>
+      <if test="usedQuota != null" >
+        #{usedQuota,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusTime != null" >
+        #{statusTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="effectTime != null" >
+        #{effectTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null" >
+        #{updateUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jyblife.logic.wl.ops.entity.VehicleDailyQuota" >
+    update t_vehicle_daily_quota
+    <set >
+      <if test="vehicleId != null" >
+        vehicle_id = #{vehicleId,jdbcType=INTEGER},
+      </if>
+      <if test="currentDate != null" >
+        `current_date` = #{currentDate,jdbcType=DATE},
+      </if>
+      <if test="frozenQuota != null" >
+        frozen_quota = #{frozenQuota,jdbcType=DECIMAL},
+      </if>
+      <if test="usedQuota != null" >
+        used_quota = #{usedQuota,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusTime != null" >
+        status_time = #{statusTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="effectTime != null" >
+        effect_time = #{effectTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null" >
+        update_user_id = #{updateUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jyblife.logic.wl.ops.entity.VehicleDailyQuota" >
+    update t_vehicle_daily_quota
+    set vehicle_id = #{vehicleId,jdbcType=INTEGER},
+      `current_date` = #{currentDate,jdbcType=DATE},
+      frozen_quota = #{frozenQuota,jdbcType=DECIMAL},
+      used_quota = #{usedQuota,jdbcType=DECIMAL},
+      status = #{status,jdbcType=INTEGER},
+      status_time = #{statusTime,jdbcType=TIMESTAMP},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      effect_time = #{effectTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

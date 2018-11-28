@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.external.mapper.AreaCodeMapper" >
+  <resultMap id="BaseResultMap" type="com.jyblife.logic.wl.ops.entity.AreaCode" >
+    <id column="area_code" property="areaCode" jdbcType="INTEGER" />
+    <result column="area_name" property="areaName" jdbcType="VARCHAR" />
+    <result column="p_area_code" property="pAreaCode" jdbcType="INTEGER" />
+    <result column="level" property="level" jdbcType="INTEGER" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    area_code, area_name, p_area_code, level
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_area_code
+    where area_code = #{areaCode,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_area_code
+    where area_code = #{areaCode,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.jyblife.logic.wl.ops.entity.AreaCode" >
+    insert into t_area_code (area_code, area_name, p_area_code, 
+      level)
+    values (#{areaCode,jdbcType=INTEGER}, #{areaName,jdbcType=VARCHAR}, #{pAreaCode,jdbcType=INTEGER}, 
+      #{level,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jyblife.logic.wl.ops.entity.AreaCode" >
+    insert into t_area_code
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="areaCode != null" >
+        area_code,
+      </if>
+      <if test="areaName != null" >
+        area_name,
+      </if>
+      <if test="pAreaCode != null" >
+        p_area_code,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="areaCode != null" >
+        #{areaCode,jdbcType=INTEGER},
+      </if>
+      <if test="areaName != null" >
+        #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="pAreaCode != null" >
+        #{pAreaCode,jdbcType=INTEGER},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jyblife.logic.wl.ops.entity.AreaCode" >
+    update t_area_code
+    <set >
+      <if test="areaName != null" >
+        area_name = #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="pAreaCode != null" >
+        p_area_code = #{pAreaCode,jdbcType=INTEGER},
+      </if>
+      <if test="level != null" >
+        level = #{level,jdbcType=INTEGER},
+      </if>
+    </set>
+    where area_code = #{areaCode,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jyblife.logic.wl.ops.entity.AreaCode" >
+    update t_area_code
+    set area_name = #{areaName,jdbcType=VARCHAR},
+      p_area_code = #{pAreaCode,jdbcType=INTEGER},
+      level = #{level,jdbcType=INTEGER}
+    where area_code = #{areaCode,jdbcType=INTEGER}
+  </update>
+
+</mapper>

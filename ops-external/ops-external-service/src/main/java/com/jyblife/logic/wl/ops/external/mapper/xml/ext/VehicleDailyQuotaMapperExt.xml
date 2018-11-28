@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.external.mapper.VehicleDailyQuotaMapper" >
+  
+  <select id="selectCurDateByVehicleId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  	SELECT * FROM t_vehicle_daily_quota WHERE `current_date` = CURDATE() AND vehicle_id = #{vehicleId} order by `id` desc limit 1
+  </select>
+  
+  <insert id="insertVehicleDailyQuota" parameterType="com.jyblife.logic.wl.ops.entity.VehicleDailyQuota" >
+  	<selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+	  SELECT LAST_INSERT_ID()
+	</selectKey>
+    insert into t_vehicle_daily_quota
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="vehicleId != null" >
+        vehicle_id,
+      </if>
+      <if test="currentDate != null" >
+        `current_date`,
+      </if>
+      <if test="frozenQuota != null" >
+        frozen_quota,
+      </if>
+      <if test="usedQuota != null" >
+        used_quota,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="statusTime != null" >
+        status_time,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="effectTime != null" >
+        effect_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateUserId != null" >
+        update_user_id,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="vehicleId != null" >
+        #{vehicleId,jdbcType=INTEGER},
+      </if>
+      <if test="currentDate != null" >
+        #{currentDate,jdbcType=DATE},
+      </if>
+      <if test="frozenQuota != null" >
+        #{frozenQuota,jdbcType=DECIMAL},
+      </if>
+      <if test="usedQuota != null" >
+        #{usedQuota,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusTime != null" >
+        #{statusTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="effectTime != null" >
+        #{effectTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null" >
+        #{updateUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+</mapper>

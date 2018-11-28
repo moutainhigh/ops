@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.external.mapper.OilPrintMapper" >
+
+	
+	<!-- 打印机SN唯一查询 -->
+	<select id="selectByStationId" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT
+			print_sn AS printSn
+		FROM
+			`t_oil_print` 
+	    where station_id = #{stationId} 
+	</select>
+
+
+
+</mapper>

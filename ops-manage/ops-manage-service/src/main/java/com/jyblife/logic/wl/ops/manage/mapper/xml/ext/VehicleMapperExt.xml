@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.VehicleMapper" >
+
+  <select id="selectPageList" resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespVehicleListDto$VehicleItem"
+          parameterType="com.jyblife.logic.wl.ops.manage.dto.VehicleListDto$Search" >
+    select
+      v.vehicle_id as vehicleId,v.logistics_id as logisticsId,v.number,v.model,v.capacity,v.state,
+      c.name as logisticsName
+    from t_vehicle v
+    left join t_logistics_company c on v.logistics_id = c.logistics_id
+    <if test="customerId != null" >
+   	JOIN t_driver_vehicle_relation dv ON v.vehicle_id = dv.vehicle_id 
+	JOIN t_driver d ON dv.driver_id = d.driver_id AND d.customer_id = #{customerId}
+    </if>
+    <where>
+      <if test="number != null and number !=''" >
+        and v.number like concat('%',#{number,jdbcType=VARCHAR},'%') 
+      </if>
+      <if test="logisticsName != null and logisticsName!=''" >
+        and c.name like concat('%',#{logisticsName,jdbcType=VARCHAR},'%') 
+      </if>
+      <if test="status != null" >
+        and v.`status` = #{status}
+      </if>
+    </where>
+    order by v.vehicle_id desc
+  </select>
+
+
+  <select id="selectDetailById" resultType="com.jyblife.logic.wl.ops.manage.dto.resp.RespVehicleDetailDto" parameterType="java.lang.Integer">
+    select v.vehicle_id as vehicleId,v.number,v.model,v.capacity,v.logistics_id as logisticsId,v.state,
+            v.optor as operator,v.remark,v.start_date as startDate,v.end_date as endDate,v.status,
+            c.name as logisticsName,v.create_time as addTime
+    FROM t_vehicle v
+    left join t_logistics_company c on v.logistics_id = c.logistics_id
+    where v.vehicle_id = #{vehicleId}
+  </select>
+
+
+
+</mapper>

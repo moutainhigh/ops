@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jyblife.logic.wl.ops.manage.mapper.SystemUserMapper">
+
+  <resultMap id="BaseResultMap" type="com.jyblife.logic.wl.ops.entity.SystemUser" >
+    <id column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="user_center_id" property="userCenterId" jdbcType="INTEGER" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="role_ids" property="roleIds" jdbcType="VARCHAR" />
+    <result column="login_key" property="loginKey" jdbcType="VARCHAR" />
+    <result column="login_count" property="loginCount" jdbcType="INTEGER" />
+    <result column="login_time" property="loginTime" jdbcType="TIMESTAMP" />
+    <result column="identity" property="identity" jdbcType="VARCHAR" />
+    <result column="main_role_id" property="mainRoleId" jdbcType="INTEGER" />
+    <result column="weixin" property="weixin" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="is_right_role" property="isRightRole" jdbcType="TINYINT" />
+    <result column="corp_ids" property="corpIds" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="create_user_id" property="createUserId" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_user_id" property="updateUserId" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.jyblife.logic.wl.ops.entity.SystemUser" extends="BaseResultMap" >
+    <result column="right_codes" property="rightCodes" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    user_id, user_center_id, user_name, password, role_ids, login_key, login_count, login_time,
+    identity, main_role_id, weixin, phone, email, status, is_right_role, corp_ids, name,
+    remark, create_user_id, create_time, update_user_id, update_time
+  </sql>
+  <sql id="Blob_Column_List" >
+    right_codes
+  </sql>
+  
+</mapper>
